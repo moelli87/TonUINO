@@ -3,10 +3,10 @@
   =====================
 
   Button B0 (by default pin A0, middle button on the original TonUINO): play/pause
-  Button B1 (by default pin A1, right button on the original TonUINO): volume up
-  Button B2 (by default pin A2, left button on the original TonUINO): volume down
-  Button B3 (by default pin A3, optional): previous track
-  Button B4 (by default pin A4, optional): next track
+  Button B1 (by default pin A4, right button on the original TonUINO): volume up
+  Button B2 (by default pin A3, left button on the original TonUINO): volume down
+  Button B3 (by default pin A1, optional): previous track
+  Button B4 (by default pin A2, optional): next track
 
   additional button actions:
   ==========================
@@ -217,25 +217,25 @@
 */
 
 // uncomment the below line to enable five button support
-// #define FIVEBUTTONS
+ #define FIVEBUTTONS
 
 // uncomment the below line to enable ir remote support
-// #define IRREMOTE
+ #define IRREMOTE
 
 // uncomment the below line to enable pin code support
-// #define PINCODE
+ #define PINCODE
 
 // uncomment ONE OF THE BELOW TWO LINES to enable status led support
 // the first enables support for a vanilla led
 // the second enables support for ws281x led(s)
-// #define STATUSLED
+ #define STATUSLED
 // #define STATUSLEDRGB
 
 // uncomment the below line to enable low voltage shutdown support
 // #define LOWVOLTAGE
 
 // uncomment the below line to flip the shutdown pin logic
-// #define POLOLUSWITCH
+ #define POLOLUSWITCH
 
 // include required libraries
 #include <avr/sleep.h>
@@ -303,11 +303,11 @@ const uint8_t shutdownPin = 7;                      // pin used to shutdown the 
 const uint8_t nfcResetPin = 9;                      // used for spi communication to nfc module
 const uint8_t nfcSlaveSelectPin = 10;               // used for spi communication to nfc module
 const uint8_t button0Pin = A0;                      // middle button
-const uint8_t button1Pin = A1;                      // right button
-const uint8_t button2Pin = A2;                      // left button
+const uint8_t button1Pin = A4;                      // right button
+const uint8_t button2Pin = A3;                      // left button
 #if defined FIVEBUTTONS
-const uint8_t button3Pin = A3;                      // optional 4th button
-const uint8_t button4Pin = A4;                      // optional 5th button
+const uint8_t button3Pin = A1;                      // optional 4th button
+const uint8_t button4Pin = A2;                      // optional 5th button
 #endif
 const uint16_t buttonClickDelay = 1000;             // time during which a button press is still a click (in milliseconds)
 const uint16_t buttonShortLongPressDelay = 2000;    // time after which a button press is considered a long press (in milliseconds)
@@ -327,11 +327,11 @@ const uint64_t enterPinCodeTimeout = 10000;         // time to enter the pin cod
 
 // default values for preferences
 const uint8_t preferenceVersion = 1;
-const uint8_t mp3StartVolumeDefault = 15;
-const uint8_t mp3MaxVolumeDefault = 25;
-const uint8_t mp3MenuVolumeDefault = 15;
+const uint8_t mp3StartVolumeDefault = 12;
+const uint8_t mp3MaxVolumeDefault = 20;
+const uint8_t mp3MenuVolumeDefault = 12;
 const uint8_t mp3EqualizerDefault = 1;
-const uint8_t shutdownMinutesDefault = 10;
+const uint8_t shutdownMinutesDefault = 5;
 const uint16_t irRemoteUserCodesDefault[7] = {};
 
 /*
