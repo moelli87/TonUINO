@@ -368,9 +368,9 @@ const float shutdownVoltageCorrection = 1.0 / 1.0;           // voltage measured
 
 #if defined LOWVOLTAGEEXTERNAL
 // define constants for shutdown feature
-const float shutdownMinVoltage = 8.8;                        // minimum expected voltage level (in volts)
+const float shutdownMinVoltage = 9.0;                        // minimum expected voltage level (in volts)
 const float shutdownWarnVoltage = 8.0;                       // warning voltage level (in volts)
-const float shutdownMaxVoltage = 12.0;                        // maximum expected voltage level (in volts)
+const float shutdownMaxVoltage = 12.0;                       // maximum expected voltage level (in volts)
 const float shutdownVoltageCorrection = 1.0 / 1.0;           // voltage measured by multimeter divided by reported voltage
 #endif
 
@@ -559,7 +559,7 @@ Vcc shutdownVoltage(shutdownVoltageCorrection);                               //
 
 #if defined LOWVOLTAGEEXTERNAL
 float getCurrentVoltage() {
-  return analogRead(voltagecontrolPin)*50.0/1024.0;
+  return analogRead(voltagecontrolPin)*50.0/1024.0;                           // ratio of voltage divider * 5 volts (maximum voltage for arduino analog pin)
 }
 #endif
 
@@ -678,6 +678,24 @@ void setup() {
   Serial.print(shutdownVoltage.Read_Perc(shutdownMinVoltage, shutdownMaxVoltage));
   Serial.println(F("%)"));
 #endif
+  
+#if defined LOWVOLTAGEEXTERNAL
+  Serial.println(F("init lvm"));
+  Serial.print(F("  ex-"));
+  Serial.print(shutdownMaxVoltage);
+  Serial.print(F("V"));
+  Serial.print(F(" wa-"));
+  Serial.print(shutdownWarnVoltage);
+  Serial.print(F("V"));
+  Serial.print(F(" sh-"));
+  Serial.print(shutdownMinVoltage);
+  Serial.print(F("V"));
+  Serial.print(F(" cu-"));
+  Serial.print(getCurrentVoltage());
+  Serial.print(F("V ("));
+  Serial.print(shutdownVoltage.Read_Perc(shutdownMinVoltage, shutdownMaxVoltage));
+  Serial.println(F("%)"));
+#endif
 
   // hold down all three buttons while powering up: erase the eeprom contents
   if (button0.isPressedRaw() && button1.isPressedRaw() && button2.isPressedRaw()) {
@@ -721,6 +739,20 @@ void loop() {
 #if defined STATUSLED ^ defined STATUSLEDRGB
     statusLedUpdate(BLINK, 255, 0, 0, 100);
 #endif
+
+#if defined LOWVOLTAGEEXTERNAL
+  // if low voltage level is reached, store progress and shutdown
+  if (getCurrentVoltage() <= shutdownMinVoltage) {
+    if (playback.currentTag.mode == STORYBOOK) EEPROM.update(playback.currentTag.folder, playback.playList[playback.playListItem - 1]);
+    mp3.playMp3FolderTrack(808);
+    waitPlaybackToFinish(255, 0, 0, 100);
+    shutdownTimer(SHUTDOWN);
+  }
+  else if (getCurrentVoltage() <= shutdownWarnVoltage) {
+#if defined STATUSLED ^ defined STATUSLEDRGB
+    statusLedUpdate(BLINK, 255, 0, 0, 100);
+#endif
+
   }
   else {
 #if defined STATUSLED ^ defined STATUSLEDRGB
