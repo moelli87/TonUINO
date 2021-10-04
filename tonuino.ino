@@ -559,7 +559,7 @@ Vcc shutdownVoltage(shutdownVoltageCorrection);                               //
 
 #if defined LOWVOLTAGEEXTERNAL
 float getCurrentVoltage() {
-  return analogRead(voltagecontrolPin)*50.0/1024.0;                           // ratio of voltage divider * 5 volts (maximum voltage for arduino analog pin)
+  return analogRead(voltagecontrolPin)*50.0/1024.0*shutdownVoltageCorrection; // ratio of voltage divider * 5 volts (maximum voltage for arduino analog pin)
 }
 #endif
 
