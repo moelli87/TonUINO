@@ -3,10 +3,10 @@
   =====================
 
   Button B0 (by default pin A0, middle button on the original TonUINO): play/pause
-  Button B1 (by default pin A1, right button on the original TonUINO): volume up
-  Button B2 (by default pin A2, left button on the original TonUINO): volume down
-  Button B3 (by default pin A3, optional): previous track
-  Button B4 (by default pin A4, optional): next track
+  Button B1 (by default pin A4, right button on the original TonUINO): volume up
+  Button B2 (by default pin A3, left button on the original TonUINO): volume down
+  Button B3 (by default pin A1, optional): previous track
+  Button B4 (by default pin A2, optional): next track
 
   additional button actions:
   ==========================
@@ -217,7 +217,7 @@
 */
 
 // uncomment the below line to enable five button support
-// #define FIVEBUTTONS
+ #define FIVEBUTTONS
 
 // uncomment the below line to enable ir remote support
 // #define IRREMOTE
@@ -228,14 +228,17 @@
 // uncomment ONE OF THE BELOW TWO LINES to enable status led support
 // the first enables support for a vanilla led
 // the second enables support for ws281x led(s)
-// #define STATUSLED
+ #define STATUSLED
 // #define STATUSLEDRGB
 
-// uncomment the below line to enable low voltage shutdown support
+// uncomment ONE OF THE BELOW TWO LINES to enable low voltage shutdown support
+// the first enables low voltage shutdown support by internal voltage monitoring (Vcc.h library)
+// the second enables low voltage shutdown support by external voltage monitoring (voltage divider on A7 pin)
 // #define LOWVOLTAGE
+ #define LOWVOLTAGEEXTERNAL
 
 // uncomment the below line to flip the shutdown pin logic
-// #define POLOLUSWITCH
+ #define POLOLUSWITCH
 
 // include required libraries
 #include <avr/sleep.h>
@@ -299,15 +302,18 @@ const uint8_t statusLedPin = 6;                     // pin used for vanilla stat
 const uint8_t statusLedCount = 1;                   // number of ws281x status led(s)
 const uint8_t statusLedMaxBrightness = 20;          // max brightness of ws281x status led(s) (in percent)
 #endif
+#if defined LOWVOLTAGEEXTERNAL
+const uint8_t voltagecontrolPin = A7;                // pin used for measuring the battery voltage
+#endif
 const uint8_t shutdownPin = 7;                      // pin used to shutdown the system
 const uint8_t nfcResetPin = 9;                      // used for spi communication to nfc module
 const uint8_t nfcSlaveSelectPin = 10;               // used for spi communication to nfc module
 const uint8_t button0Pin = A0;                      // middle button
-const uint8_t button1Pin = A1;                      // right button
-const uint8_t button2Pin = A2;                      // left button
+const uint8_t button1Pin = A4;                      // right button
+const uint8_t button2Pin = A3;                      // left button
 #if defined FIVEBUTTONS
-const uint8_t button3Pin = A3;                      // optional 4th button
-const uint8_t button4Pin = A4;                      // optional 5th button
+const uint8_t button3Pin = A1;                      // optional 4th button
+const uint8_t button4Pin = A2;                      // optional 5th button
 #endif
 const uint16_t buttonClickDelay = 1000;             // time during which a button press is still a click (in milliseconds)
 const uint16_t buttonShortLongPressDelay = 2000;    // time after which a button press is considered a long press (in milliseconds)
@@ -357,6 +363,14 @@ const uint8_t irRemoteCodeCount = sizeof(irRemoteCodes) / (2 * irRemoteCount);
 const float shutdownMinVoltage = 4.4;                        // minimum expected voltage level (in volts)
 const float shutdownWarnVoltage = 4.8;                       // warning voltage level (in volts)
 const float shutdownMaxVoltage = 5.0;                        // maximum expected voltage level (in volts)
+const float shutdownVoltageCorrection = 1.0 / 1.0;           // voltage measured by multimeter divided by reported voltage
+#endif
+
+#if defined LOWVOLTAGEEXTERNAL
+// define constants for shutdown feature
+const float shutdownMinVoltage = 8.8;                        // minimum expected voltage level (in volts)
+const float shutdownWarnVoltage = 8.0;                       // warning voltage level (in volts)
+const float shutdownMaxVoltage = 12.0;                        // maximum expected voltage level (in volts)
 const float shutdownVoltageCorrection = 1.0 / 1.0;           // voltage measured by multimeter divided by reported voltage
 #endif
 
@@ -543,6 +557,12 @@ WS2812 rgbLed(statusLedCount);                                                //
 Vcc shutdownVoltage(shutdownVoltageCorrection);                               // create Vcc instance
 #endif
 
+#if defined LOWVOLTAGEEXTERNAL
+float getCurrentVoltage() {
+  return analogRead(voltagecontrolPin)*50.0/1024.0;
+}
+#endif
+
 void setup() {
   // things we need to do immediately on startup
   pinMode(shutdownPin, OUTPUT);
@@ -598,10 +618,10 @@ void setup() {
   pinMode(mp3BusyPin, INPUT);
 
   Serial.print(F("init"));
-  pinMode(button0Pin, INPUT_PULLUP);
+  pinMode(button0Pin, INPUT);
   pinMode(button1Pin, INPUT_PULLUP);
   pinMode(button2Pin, INPUT_PULLUP);
-  button0.init(button0Pin, HIGH, 0);
+  button0.init(button0Pin, LOW, 0);
   button1.init(button1Pin, HIGH, 1);
   button2.init(button2Pin, HIGH, 2);
 #if defined FIVEBUTTONS
