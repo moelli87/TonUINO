@@ -368,8 +368,8 @@ const float shutdownVoltageCorrection = 1.0 / 1.0;           // voltage measured
 
 #if defined LOWVOLTAGEEXTERNAL
 // define constants for shutdown feature
-const float shutdownMinVoltage = 9.0;                        // minimum expected voltage level (in volts)
-const float shutdownWarnVoltage = 8.0;                       // warning voltage level (in volts)
+const float shutdownMinVoltage = 8.0;                        // minimum expected voltage level (in volts)
+const float shutdownWarnVoltage = 9.0;                       // warning voltage level (in volts)
 const float shutdownMaxVoltage = 12.0;                       // maximum expected voltage level (in volts)
 const float shutdownVoltageCorrection = 1.0 / 1.0;           // voltage measured by multimeter divided by reported voltage
 #endif
@@ -693,8 +693,6 @@ void setup() {
   Serial.print(F(" cu-"));
   Serial.print(getCurrentVoltage());
   Serial.print(F("V ("));
-  Serial.print(shutdownVoltage.Read_Perc(shutdownMinVoltage, shutdownMaxVoltage));
-  Serial.println(F("%)"));
 #endif
 
   // hold down all three buttons while powering up: erase the eeprom contents
